@@ -50,10 +50,39 @@ async function shouldReRunCheck(prNumber: number, checkName: string, baseBranch:
     return false;
 }
 
+async function isPRApproved(prNumber: number, numberOfRequiredApproves): Promise<boolean> {
+    const reviews = (await client.rest.pulls.listReviews({
+        ...github.context.repo,
+        pull_number: prNumber
+    })).data;
+
+    return reviews.map(review => review.state === "APPROVED").filter(Boolean) ===  numberOfRequiredApproves;
+}
+
+async function getNumberOfApprovedRequired(baseBranchName: string): Promise<number> {
+    const branchProtection = (await client.rest.repos.getBranchProtection({
+        ...github.context.repo,
+        branch: baseBranchName
+    })).data;
+    
+    return branchProtection.required_pull_request_reviews !== undefined ? 
+    branchProtection.required_pull_request_reviews.required_approving_review_count ?? 1 : 
+    1;
+}
+
 async function main() {
     const prNumber = +prNumberArg;
-    const shouldRerun = await shouldReRunCheck(prNumber, checkNameArg, baseBranchArg);
-    core.info(`PR ${prNumber} - Should rerun check ${checkNameArg}: ${shouldRerun}`);
+    let shouldRerun = false;
+
+    const numberOfRequiredApproves = await getNumberOfApprovedRequired(baseBranchArg);
+    const isApproved = await isPRApproved(prNumber, numberOfRequiredApproves);
+    if (isApproved) {
+        shouldRerun = await shouldReRunCheck(prNumber, checkNameArg, baseBranchArg);
+        core.info(`PR ${prNumber} - Should rerun check ${checkNameArg}: ${shouldRerun}`);
+    } else {
+        core.info(`Skipping PR ${prNumber} - PR is not approved yet`);
+    }
+
     core.setOutput("should_rerun", shouldRerun);
 }
 

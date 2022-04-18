@@ -1232,6 +1232,29 @@ exports.paginatingEndpoints = paginatingEndpoints;
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -1240,13 +1263,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
@@ -1296,11 +1312,34 @@ function shouldReRunCheck(prNumber, checkName, baseBranch) {
         return false;
     });
 }
+function isPRApproved(prNumber, numberOfRequiredApproves) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const reviews = (yield client.rest.pulls.listReviews(Object.assign(Object.assign({}, github.context.repo), { pull_number: prNumber }))).data;
+        return reviews.map(review => review.state === "APPROVED").filter(Boolean) === numberOfRequiredApproves;
+    });
+}
+function getNumberOfApprovedRequired(baseBranchName) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        const branchProtection = (yield client.rest.repos.getBranchProtection(Object.assign(Object.assign({}, github.context.repo), { branch: baseBranchName }))).data;
+        return branchProtection.required_pull_request_reviews !== undefined ?
+            (_a = branchProtection.required_pull_request_reviews.required_approving_review_count) !== null && _a !== void 0 ? _a : 1 :
+            1;
+    });
+}
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         const prNumber = +prNumberArg;
-        const shouldRerun = yield shouldReRunCheck(prNumber, checkNameArg, baseBranchArg);
-        core.info(`PR ${prNumber} - Should rerun check ${checkNameArg}: ${shouldRerun}`);
+        let shouldRerun = false;
+        const numberOfRequiredApproves = yield getNumberOfApprovedRequired(baseBranchArg);
+        const isApproved = yield isPRApproved(prNumber, numberOfRequiredApproves);
+        if (isApproved) {
+            shouldRerun = yield shouldReRunCheck(prNumber, checkNameArg, baseBranchArg);
+            core.info(`PR ${prNumber} - Should rerun check ${checkNameArg}: ${shouldRerun}`);
+        }
+        else {
+            core.info(`Skipping PR ${prNumber} - PR is not approved yet`);
+        }
         core.setOutput("should_rerun", shouldRerun);
     });
 }
