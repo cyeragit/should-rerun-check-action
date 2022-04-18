@@ -1,0 +1,23 @@
+name: PR check runner
+description: Re-runs a check on a PR if needed
+inputs:
+  token:
+    required: true
+    description: "Token to perform api calls"
+  base_branch:
+    required: true
+    description: "The base branch - where the PR is merged"
+  pr_number:
+    required: true
+    description: "The PR number"
+  check_name:
+    required: true
+    description: "The name of the check to be re-run"
+
+runs:
+  using: node12
+  main: bin/index.js
+
+branding:
+  icon: git-pull-request
+  color: green
