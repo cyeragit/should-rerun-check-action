@@ -4,6 +4,7 @@ import * as github from '@actions/github'
 const baseBranchArg = core.getInput('base_branch')
 const prNumberArg = core.getInput('pr_number')
 const checkNameArg = core.getInput('check_name')
+const numberOfRequiredApprovesArg = core.getInput('number_of_required_approves');
 const token = core.getInput('token')
 const client = github.getOctokit(token)
 
@@ -59,23 +60,11 @@ async function isPRApproved(prNumber: number, numberOfRequiredApproves): Promise
     return reviews.map(review => review.state === "APPROVED").filter(Boolean) ===  numberOfRequiredApproves;
 }
 
-async function getNumberOfApprovedRequired(baseBranchName: string): Promise<number> {
-    const branchProtection = (await client.rest.repos.getBranchProtection({
-        ...github.context.repo,
-        branch: baseBranchName
-    })).data;
-    
-    return branchProtection.required_pull_request_reviews !== undefined ? 
-    branchProtection.required_pull_request_reviews.required_approving_review_count ?? 1 : 
-    1;
-}
-
 async function main() {
     const prNumber = +prNumberArg;
     let shouldRerun = false;
 
-    const numberOfRequiredApproves = await getNumberOfApprovedRequired(baseBranchArg);
-    const isApproved = await isPRApproved(prNumber, numberOfRequiredApproves);
+    const isApproved = await isPRApproved(prNumber, numberOfRequiredApprovesArg);
     if (isApproved) {
         shouldRerun = await shouldReRunCheck(prNumber, checkNameArg, baseBranchArg);
         core.info(`PR ${prNumber} - Should rerun check ${checkNameArg}: ${shouldRerun}`);

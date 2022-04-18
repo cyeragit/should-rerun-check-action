@@ -13,6 +13,9 @@ inputs:
   check_name:
     required: true
     description: "The name of the check to be re-run"
+  number_of_required_approves:
+    required: true
+    description: "The number of required approves on a PR"
 
 runs:
   using: node16
