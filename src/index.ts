@@ -57,10 +57,8 @@ async function isPRApproved(prNumber: number, numberOfRequiredApproves): Promise
         pull_number: prNumber
     })).data;
 
-    const x = reviews.map(review => review.state === "APPROVED").filter(Boolean);
-    core.info(`${x}`);
-    core.info(`${x.length} ?= ${numberOfRequiredApproves}`);
-    return x.length === numberOfRequiredApproves;
+    const approvedReviews = reviews.map(review => review.state === "APPROVED").filter(Boolean);
+    return approvedReviews.length === numberOfRequiredApproves;
 }
 
 async function main() {
@@ -68,6 +66,7 @@ async function main() {
     let shouldRerun = false;
 
     const isApproved = await isPRApproved(prNumber, numberOfRequiredApprovesArg);
+    core.info(`PR ${prNumber} - ${isApproved}`);
     if (isApproved) {
         shouldRerun = await shouldReRunCheck(prNumber, checkNameArg, baseBranchArg);
         core.info(`PR ${prNumber} - Should rerun check ${checkNameArg}: ${shouldRerun}`);

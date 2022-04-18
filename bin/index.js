@@ -1316,10 +1316,8 @@ function shouldReRunCheck(prNumber, checkName, baseBranch) {
 function isPRApproved(prNumber, numberOfRequiredApproves) {
     return __awaiter(this, void 0, void 0, function* () {
         const reviews = (yield client.rest.pulls.listReviews(Object.assign(Object.assign({}, github.context.repo), { pull_number: prNumber }))).data;
-        const x = reviews.map(review => review.state === "APPROVED").filter(Boolean);
-        core.info(`${x}`);
-        core.info(`${x.length} ?= ${numberOfRequiredApproves}`);
-        return x.length === numberOfRequiredApproves;
+        const approvedReviews = reviews.map(review => review.state === "APPROVED").filter(Boolean);
+        return approvedReviews.length === numberOfRequiredApproves;
     });
 }
 function main() {
@@ -1327,6 +1325,7 @@ function main() {
         const prNumber = +prNumberArg;
         let shouldRerun = false;
         const isApproved = yield isPRApproved(prNumber, numberOfRequiredApprovesArg);
+        core.info(`PR ${prNumber} - ${isApproved}`);
         if (isApproved) {
             shouldRerun = yield shouldReRunCheck(prNumber, checkNameArg, baseBranchArg);
             core.info(`PR ${prNumber} - Should rerun check ${checkNameArg}: ${shouldRerun}`);
