@@ -1270,6 +1270,7 @@ const github = __importStar(__webpack_require__(469));
 const baseBranchArg = core.getInput('base_branch');
 const prNumberArg = core.getInput('pr_number');
 const checkNameArg = core.getInput('check_name');
+const numberOfRequiredApprovesArg = core.getInput('number_of_required_approves');
 const token = core.getInput('token');
 const client = github.getOctokit(token);
 function getMergeMessagePrefixes(branchName) {
@@ -1318,21 +1319,11 @@ function isPRApproved(prNumber, numberOfRequiredApproves) {
         return reviews.map(review => review.state === "APPROVED").filter(Boolean) === numberOfRequiredApproves;
     });
 }
-function getNumberOfApprovedRequired(baseBranchName) {
-    var _a;
-    return __awaiter(this, void 0, void 0, function* () {
-        const branchProtection = (yield client.rest.repos.getBranchProtection(Object.assign(Object.assign({}, github.context.repo), { branch: baseBranchName }))).data;
-        return branchProtection.required_pull_request_reviews !== undefined ?
-            (_a = branchProtection.required_pull_request_reviews.required_approving_review_count) !== null && _a !== void 0 ? _a : 1 :
-            1;
-    });
-}
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         const prNumber = +prNumberArg;
         let shouldRerun = false;
-        const numberOfRequiredApproves = yield getNumberOfApprovedRequired(baseBranchArg);
-        const isApproved = yield isPRApproved(prNumber, numberOfRequiredApproves);
+        const isApproved = yield isPRApproved(prNumber, numberOfRequiredApprovesArg);
         if (isApproved) {
             shouldRerun = yield shouldReRunCheck(prNumber, checkNameArg, baseBranchArg);
             core.info(`PR ${prNumber} - Should rerun check ${checkNameArg}: ${shouldRerun}`);
