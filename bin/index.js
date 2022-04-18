@@ -1324,7 +1324,7 @@ function main() {
     return __awaiter(this, void 0, void 0, function* () {
         const prNumber = +prNumberArg;
         let shouldRerun = false;
-        const isApproved = yield isPRApproved(prNumber, numberOfRequiredApprovesArg);
+        const isApproved = yield isPRApproved(prNumber, +numberOfRequiredApprovesArg);
         core.info(`PR ${prNumber} - ${isApproved}`);
         if (isApproved) {
             shouldRerun = yield shouldReRunCheck(prNumber, checkNameArg, baseBranchArg);

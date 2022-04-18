@@ -51,7 +51,7 @@ async function shouldReRunCheck(prNumber: number, checkName: string, baseBranch:
     return false;
 }
 
-async function isPRApproved(prNumber: number, numberOfRequiredApproves): Promise<boolean> {
+async function isPRApproved(prNumber: number, numberOfRequiredApproves: number): Promise<boolean> {
     const reviews = (await client.rest.pulls.listReviews({
         ...github.context.repo,
         pull_number: prNumber
@@ -65,7 +65,7 @@ async function main() {
     const prNumber = +prNumberArg;
     let shouldRerun = false;
 
-    const isApproved = await isPRApproved(prNumber, numberOfRequiredApprovesArg);
+    const isApproved = await isPRApproved(prNumber, +numberOfRequiredApprovesArg);
     core.info(`PR ${prNumber} - ${isApproved}`);
     if (isApproved) {
         shouldRerun = await shouldReRunCheck(prNumber, checkNameArg, baseBranchArg);
