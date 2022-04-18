@@ -1316,7 +1316,7 @@ function shouldReRunCheck(prNumber, checkName, baseBranch) {
 function isPRApproved(prNumber, numberOfRequiredApproves) {
     return __awaiter(this, void 0, void 0, function* () {
         const reviews = (yield client.rest.pulls.listReviews(Object.assign(Object.assign({}, github.context.repo), { pull_number: prNumber }))).data;
-        return reviews.map(review => review.state === "APPROVED").filter(Boolean) === numberOfRequiredApproves;
+        return reviews.map(review => review.state === "APPROVED").filter(Boolean).length === numberOfRequiredApproves;
     });
 }
 function main() {

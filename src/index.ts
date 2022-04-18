@@ -57,7 +57,7 @@ async function isPRApproved(prNumber: number, numberOfRequiredApproves): Promise
         pull_number: prNumber
     })).data;
 
-    return reviews.map(review => review.state === "APPROVED").filter(Boolean) ===  numberOfRequiredApproves;
+    return reviews.map(review => review.state === "APPROVED").filter(Boolean).length ===  numberOfRequiredApproves;
 }
 
 async function main() {
