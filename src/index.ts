@@ -40,7 +40,7 @@ async function isMergeToBaseBranch(commit, baseBranch: string): Promise<boolean>
 async function shouldReRunCheck(prNumber: number, checkName: string, baseBranch: string): Promise<boolean> {
     const prCommits = await getPRCommits(+prNumber);
     core.info(`Number of commits: ${prCommits.data.length}`);
-    for (const commit of prCommits.data) {
+    for (const commit of prCommits.data.reverse()) {
         const isMergeCommit = await isMergeToBaseBranch(commit, baseBranch);
         const hasCheckRun = await hasCheckRunOnCommit(checkName, commit.sha)
         core.info(`commit sha: ${commit.sha}; is merge: ${isMergeCommit}; has check: ${hasCheckRun}`);

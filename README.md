@@ -15,3 +15,6 @@ Verify if a specific check needs to be rerun on a specific PR, and re-runs if ne
 |              check_name           |       `string`       |  `true`  |                       |                            The check name to verify on PR                             |
 |    number_of_required_approves    |       `string`       |  `true`  |                       |                            The number of required approves on a PR                    |
 
+
+## Limitations
+* Supports up to 250 commits per pull request
