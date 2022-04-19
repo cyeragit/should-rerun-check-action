@@ -12,6 +12,7 @@ function getMergeMessagePrefixes(branchName: string) {
     return [
         `Merge remote-tracking branch 'origin/${branchName}' into`,
         `Merge branch '${branchName}' of`,
+        `Merge branch '${branchName}' into`,
         "Merge remote-tracking branch 'origin' into"
     ]
 }
