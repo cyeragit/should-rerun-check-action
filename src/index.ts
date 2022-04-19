@@ -37,8 +37,8 @@ async function isMergeToBaseBranch(commit, baseBranch: string): Promise<boolean>
     core.info(`commit parents number: ${commit.parents.length} - ${commit.parents}`);
     core.info(`commit message: ${commit.commit.message}`);
     core.info(`merge prefixes: ${getMergeMessagePrefixes(baseBranch)}`);
-    return commit.parents.length === 2 && 
-    getMergeMessagePrefixes(baseBranch).some(mergeMessage => commit.commit.message.includes(mergeMessage));
+    return getMergeMessagePrefixes(baseBranch).some(mergeMessage => commit.commit.message.includes(mergeMessage));
+    //commit.parents.length === 2 && 
 }
 
 async function shouldReRunCheck(prNumber: number, checkName: string, baseBranch: string): Promise<boolean> {
