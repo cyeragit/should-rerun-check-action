@@ -1300,9 +1300,11 @@ function isMergeToBaseBranch(commit, baseBranch) {
 function shouldReRunCheck(prNumber, checkName, baseBranch) {
     return __awaiter(this, void 0, void 0, function* () {
         const prCommits = yield getPRCommits(+prNumber);
+        core.info(`Number of commits: ${prCommits.data.length}`);
         for (const commit of prCommits.data) {
             const isMergeCommit = yield isMergeToBaseBranch(commit, baseBranch);
             const hasCheckRun = yield hasCheckRunOnCommit(checkName, commit.sha);
+            core.info(`commit sha: ${commit.sha}; is merge: ${isMergeCommit}; has check: ${hasCheckRun}`);
             if (hasCheckRun) {
                 break;
             }
