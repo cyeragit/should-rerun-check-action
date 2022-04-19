@@ -1294,11 +1294,8 @@ function hasCheckRunOnCommit(checkName, commitSha) {
 }
 function isMergeToBaseBranch(commit, baseBranch) {
     return __awaiter(this, void 0, void 0, function* () {
-        core.info(`commit parents number: ${commit.parents.length} - ${commit.parents}`);
-        core.info(`commit message: ${commit.commit.message}`);
-        core.info(`merge prefixes: ${getMergeMessagePrefixes(baseBranch)}`);
-        return getMergeMessagePrefixes(baseBranch).some(mergeMessage => commit.commit.message.includes(mergeMessage));
-        //commit.parents.length === 2 && 
+        return commit.parents.length === 2 &&
+            getMergeMessagePrefixes(baseBranch).some(mergeMessage => commit.commit.message.includes(mergeMessage));
     });
 }
 function shouldReRunCheck(prNumber, checkName, baseBranch) {
